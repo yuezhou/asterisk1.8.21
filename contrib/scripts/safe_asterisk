@@ -1,0 +1,23 @@
+#!/bin/bash
+
+(
+start_asterisk() {
+cd /tmp
+
+logger -i -t "safe_asterisk" "Asterisk starting up"
+ulimit -c unlimited
+ulimit -n 65535
+/usr/sbin/asterisk -f -vvvvvvg 2>&1 > /dev/null
+
+if [ "$?" == "0" ]; then
+	logger -i -t "safe_asterisk" "Asterisk exited normally."
+	exit 0
+else
+	logger -i -t "safe_asterisk" "Asterisk seems to have crashed, Restarting. ( Signal $? )"
+fi
+}
+
+while true ; do start_asterisk ; sleep 5; done
+
+) 2>&1 > /dev/null &
+
